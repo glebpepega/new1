@@ -14,21 +14,27 @@ type listResponseBody struct {
 
 func (api *ApiServer) handleEditId(c *fiber.Ctx) error {
 	n := c.Locals("validatedEdit").(models.News)
+
 	nc := models.NewsCategories{}
+
 	nc.NewsId = n.Id
-	if err := api.db.UpdateNews(&n, &nc); err != nil {
+	if err := api.Db.UpdateNews(&n, &nc); err != nil {
 		return api.error(c, 400, err)
 	}
+
 	return c.Status(200).Send([]byte(`{"status": "updated"}`))
 }
 
 func (api *ApiServer) handleList(c *fiber.Ctx) error {
 	p := c.Locals("validatedPagination").(Pagination)
-	news, err := api.db.GetAllNews(p.PageNum, p.PageVolume)
+
+	news, err := api.Db.GetAllNews(p.PageNum, p.PageVolume)
 	if err != nil {
 		return api.error(c, 400, err)
 	}
+
 	var body listResponseBody
+
 	if len(news) > 0 {
 		body = listResponseBody{
 			Success: true,
@@ -39,6 +45,7 @@ func (api *ApiServer) handleList(c *fiber.Ctx) error {
 			Success: false,
 		}
 	}
+
 	return c.Status(200).JSON(body)
 }
 

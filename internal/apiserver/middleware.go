@@ -23,33 +23,45 @@ func (api *ApiServer) validateEditMiddleware(c *fiber.Ctx) error {
 	if err != nil {
 		return api.error(c, 400, err)
 	}
+
 	n := models.News{}
-	if err := c.BodyParser(&n); err != nil {
+
+	if err = c.BodyParser(&n); err != nil {
 		return api.error(c, 400, err)
 	}
-	if err := validate.Struct(&n); err != nil {
+
+	if err = validate.Struct(&n); err != nil {
 		return api.error(c, 400, err)
 	}
+
 	n.Id = id
+
 	c.Locals("validatedEdit", n)
+
 	return c.Next()
 }
 
 func (api *ApiServer) validateListMiddleware(c *fiber.Ctx) error {
 	p := Pagination{}
+
 	if err := c.BodyParser(&p); err != nil {
 		return api.error(c, 400, err)
 	}
+
 	if err := validate.Struct(&p); err != nil {
 		return api.error(c, 400, err)
 	}
+
 	c.Locals("validatedPagination", p)
+
 	return c.Next()
 }
 
 func (api *ApiServer) authMiddleware(c *fiber.Ctx) error {
 	headers := c.GetReqHeaders()
+
 	authHeader := headers["Authorization"]
+
 	switch authHeader {
 	case os.Getenv("AUTH_KEY"):
 		return c.Next()
@@ -61,10 +73,12 @@ func (api *ApiServer) authMiddleware(c *fiber.Ctx) error {
 }
 
 func (api *ApiServer) logMiddleware(c *fiber.Ctx) error {
-	logger := api.logger.WithFields(logrus.Fields{
+	logger := api.Logger.WithFields(logrus.Fields{
 		"remote_ip":   c.IP(),
 		"remote_port": c.Port(),
 	})
+
 	logger.Infof("%s request at %s", c.Method(), c.Request().URI())
+
 	return c.Next()
 }
