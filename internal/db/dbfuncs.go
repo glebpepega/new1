@@ -42,6 +42,7 @@ func (db *DB) GetAllNews(pageNum int, pageVolume int) ([]models.News, error) {
 		Joins("left join news_categories on news_categories.news_id = news.id").
 		Group("news.id").
 		Scan(&queryResult)
+
 	if len(queryResult) == 0 {
 		return nil, fmt.Errorf("no rows found")
 	}
