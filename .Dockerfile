@@ -6,6 +6,6 @@ COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 
 COPY . .
-RUN go build -o bin main.go
+RUN go build -o bin .
 
 CMD ["/app/bin"]

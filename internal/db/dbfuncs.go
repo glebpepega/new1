@@ -34,8 +34,6 @@ func (db *DB) UpdateNews(n *models.News, nc *models.NewsCategories) error {
 
 func (db *DB) GetAllNews(pageNum int, pageVolume int) ([]models.News, error) {
 	var queryResult []result
-
-	if pageNum != 0 && pageVolume != 0 {
 		db.DB.Model(&models.News{}).
 			Select("news.id, news.title, news.content, json_agg(news_categories.category_id order by news_categories.category_id) as Categories").
 			Limit(pageVolume).
@@ -43,14 +41,6 @@ func (db *DB) GetAllNews(pageNum int, pageVolume int) ([]models.News, error) {
 			Joins("left join news_categories on news_categories.news_id = news.id").
 			Group("news.id").
 			Scan(&queryResult)
-	} else {
-		db.DB.Model(&models.News{}).
-			Select("news.id, news.title, news.content, json_agg(news_categories.category_id order by news_categories.category_id) as Categories").
-			Joins("left join news_categories on news_categories.news_id = news.id").
-			Group("news.id").
-			Scan(&queryResult)
-	}
-
 	if len(queryResult) == 0 {
 		return nil, fmt.Errorf("no rows found")
 	}

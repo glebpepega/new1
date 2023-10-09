@@ -73,12 +73,9 @@ func (api *ApiServer) authMiddleware(c *fiber.Ctx) error {
 }
 
 func (api *ApiServer) logMiddleware(c *fiber.Ctx) error {
-	logger := api.Logger.WithFields(logrus.Fields{
+	api.logger.WithFields(logrus.Fields{
 		"remote_ip":   c.IP(),
 		"remote_port": c.Port(),
-	})
-
-	logger.Infof("%s request at %s", c.Method(), c.Request().URI())
-
+	}).Infof("%s request at %s", c.Method(), c.Request().URI())
 	return c.Next()
 }
