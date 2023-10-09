@@ -48,6 +48,7 @@ func (db *DB) GetAllNews(pageNum int, pageVolume int) ([]models.News, error) {
 	}
 
 	var news []models.News
+
 	var categories []int
 
 	for _, v := range queryResult {
