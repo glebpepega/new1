@@ -12,5 +12,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	apiserver.New().Start()
+	s := apiserver.New()
+	go s.Start()
+	s.GracefulShutdown()
 }

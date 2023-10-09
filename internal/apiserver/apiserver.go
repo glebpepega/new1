@@ -2,6 +2,8 @@ package apiserver
 
 import (
 	"os"
+	"os/signal"
+	"time"
 
 	"github.com/glebpepega/new1/internal/db"
 	"github.com/gofiber/fiber/v2"
@@ -39,4 +41,14 @@ func (api *ApiServer) Start() {
 	api.fiber.Post("/edit/:id", api.handleEditId)
 	api.fiber.Get("/list", api.handleList)
 	api.logger.Fatal(api.fiber.Listen(os.Getenv("LISTENING_PORT")))
+}
+
+func (api *ApiServer) GracefulShutdown() {
+	sigint := make(chan os.Signal, 1)
+	signal.Notify(sigint, os.Interrupt)
+	<-sigint
+	api.logger.Info("graceful shutdown")
+	if err := api.fiber.ShutdownWithTimeout(time.Second * 10); err != nil {
+		api.logger.Fatal(err)
+	}
 }
