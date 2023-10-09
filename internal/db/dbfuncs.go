@@ -34,13 +34,14 @@ func (db *DB) UpdateNews(n *models.News, nc *models.NewsCategories) error {
 
 func (db *DB) GetAllNews(pageNum int, pageVolume int) ([]models.News, error) {
 	var queryResult []result
-		db.DB.Model(&models.News{}).
-			Select("news.id, news.title, news.content, json_agg(news_categories.category_id order by news_categories.category_id) as Categories").
-			Limit(pageVolume).
-			Offset((pageNum - 1) * pageVolume).
-			Joins("left join news_categories on news_categories.news_id = news.id").
-			Group("news.id").
-			Scan(&queryResult)
+
+	db.DB.Model(&models.News{}).
+		Select("news.id, news.title, news.content, json_agg(news_categories.category_id order by news_categories.category_id) as Categories").
+		Limit(pageVolume).
+		Offset((pageNum - 1) * pageVolume).
+		Joins("left join news_categories on news_categories.news_id = news.id").
+		Group("news.id").
+		Scan(&queryResult)
 	if len(queryResult) == 0 {
 		return nil, fmt.Errorf("no rows found")
 	}
