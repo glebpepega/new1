@@ -2,8 +2,6 @@ package apiserver
 
 import (
 	"os"
-	"os/signal"
-	"time"
 
 	"github.com/glebpepega/new1/internal/db"
 	"github.com/gofiber/fiber/v2"
@@ -11,44 +9,25 @@ import (
 )
 
 type ApiServer struct {
-	fiber  *fiber.App
-	db     *db.DB
-	logger *logrus.Logger
+	Fiber  *fiber.App
+	Db     *db.DB
+	Logger *logrus.Logger
 }
 
-func New() *ApiServer {
-	return &ApiServer{}
-}
-
-func (api *ApiServer) configure() {
-	api.fiber = fiber.New()
-	api.logger = logrus.New()
-	api.logger.SetFormatter(&logrus.TextFormatter{
-		ForceColors: true,
-	})
-	api.db = db.New()
-	if err := api.db.Init(); err != nil {
-		api.logger.Fatal(err)
+func New(db *db.DB, logger *logrus.Logger) *ApiServer {
+	return &ApiServer{
+		Db:     db,
+		Logger: logger,
+		Fiber:  fiber.New(),
 	}
 }
 
-func (api *ApiServer) Start() {
-	api.configure()
-	api.logger.Info("starting api server")
-	api.fiber.Use(api.authMiddleware, api.logMiddleware)
-	api.fiber.Use("/edit/:id", api.validateEditMiddleware)
-	api.fiber.Use("/list", api.validateListMiddleware)
-	api.fiber.Post("/edit/:id", api.handleEditId)
-	api.fiber.Get("/list", api.handleList)
-	api.logger.Fatal(api.fiber.Listen(os.Getenv("LISTENING_PORT")))
-}
-
-func (api *ApiServer) GracefulShutdown() {
-	sigint := make(chan os.Signal, 1)
-	signal.Notify(sigint, os.Interrupt)
-	<-sigint
-	api.logger.Info("graceful shutdown")
-	if err := api.fiber.ShutdownWithTimeout(time.Second * 10); err != nil {
-		api.logger.Fatal(err)
-	}
+func (api *ApiServer) ConfigureServer() {
+	api.Logger.Info("starting api server")
+	api.Fiber.Use(api.authMiddleware, api.logMiddleware)
+	api.Fiber.Use("/edit/:id", api.validateEditMiddleware)
+	api.Fiber.Use("/list", api.validateListMiddleware)
+	api.Fiber.Post("/edit/:id", api.handleEditId)
+	api.Fiber.Get("/list", api.handleList)
+	api.Logger.Error(api.Fiber.Listen(os.Getenv("LISTENING_PORT")))
 }
