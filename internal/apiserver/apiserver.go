@@ -20,14 +20,14 @@ func New() *ApiServer {
 
 func (api *ApiServer) configure() {
 	api.fiber = fiber.New()
-	api.db = db.New()
-	if err := api.db.Init(); err != nil {
-		api.logger.Fatal(err)
-	}
 	api.logger = logrus.New()
 	api.logger.SetFormatter(&logrus.TextFormatter{
 		ForceColors: true,
 	})
+	api.db = db.New()
+	if err := api.db.Init(); err != nil {
+		api.logger.Fatal(err)
+	}
 }
 
 func (api *ApiServer) Start() {
